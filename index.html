@@ -70,7 +70,7 @@ h1 {
       </select>
 </div>
 
-<div>
+<!-- <div>
     <select id="key">
         <option value="C">C</option>
         <option value="C#">C# / Db</option>
@@ -85,7 +85,7 @@ h1 {
         <option value="A#">A# / Bb</option>
         <option value="B">B</option>
       </select>
-</div>
+</div> -->
 
 
 <div>
@@ -175,9 +175,13 @@ let currentSampler = piano;
 
 let step = 0
 let bar = 0
-let totalSteps = 6
+let totalSteps = 24
 let totalBars = 1
-let leftVolume = 0.5
+let rightVolume = 0.5
+
+const noteGroupings = [6, 12, 18, 24];
+
+let notesUntilSwitch = getRandomItem(noteGroupings);
 
 const modes = {
   ionian: [2, 2, 1, 2, 2, 2, 1], // major
@@ -190,7 +194,7 @@ const modes = {
 }
 
 let rightHandArp = [
-  [11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9],
+  [12, 8, 10, 5, 8, 10, 12, 8, 10, 5, 8, 10, 12, 8, 10, 5, 8, 10, 12, 8, 10, 5, 8, 10],
 //   [5, 3, 0, 5, 3, 0, 5, 3],
 //   [5, 3, 0, 5, 3, 0, 5, 3],
 //   [4, 2, 0, 4, 2, 0, 4, 2]
@@ -199,7 +203,8 @@ let rightHandArp = [
 let leftHandArp = [[0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4]]
 
     let mode = document.getElementById("mode").value;
-    let key = document.getElementById("key").value;
+    // let key = document.getElementById("key").value;
+    let key = "C#";
     let octave = 4;
   
     document.getElementById("mode").addEventListener("change", function() {
@@ -208,11 +213,11 @@ let leftHandArp = [[0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 
       setPresets();
     });
   
-    document.getElementById("key").addEventListener("change", function() {
-      key = this.value;
-      console.log("Key selected:", key);
-      setPresets();
-    });
+    // document.getElementById("key").addEventListener("change", function() {
+    //   key = this.value;
+    //   console.log("Key selected:", key);
+    //   setPresets();
+    // });
 
     document.getElementById("instrument").addEventListener("change", function() {
         const selected = this.value;
@@ -233,6 +238,7 @@ let leftHandArp = [[0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 
   } else {
     Tone.Transport.start()
     toggleButton.textContent = "Stop";
+    console.log('started')
   }
 }
 
@@ -255,54 +261,25 @@ function createScale(octave) {
   return scale
 }
 
+function getRandomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 
 
 function setPresets() {
   // choose new key/scale && tempo
-  Tone.Transport.bpm.value = nn.randomInt(90, 140)
+  Tone.Transport.bpm.value = nn.randomInt(110, 180);
+  console.log(Tone.Transport.bpm.value);
+//   Tone.Transport.bpm.value = 40;
   let oct = octave
-//   rightHandScale = createScale(oct) + createScale(oct + 1)
-//   leftHandScale = createScale(oct - 2) + createScale(oct - 1)
+
 rightHandScale = createScale(oct).concat(createScale(oct + 1));
 leftHandScale = createScale(oct - 2).concat(createScale(oct - 1));
-  // create new arpeggio && chord patterns
-//   rightHandArp = []
-//   leftHandArp = []
-//   for (let i = 0; i < 4; i++) {
-//     let a = nn.randomInt(0, 7)
-//     let b = nn.random() > 0.5 ? a + 2 : a + 3
-//     let c = nn.random() > 0.5 ? b + 2 : b + 3
-//     if (b > 7) b = b % 8
-//     if (c > 7) c = c % 8
-//     leftHandArp.push([c, b, a, c, b, a, c, b])
-//     rightHandArp.push([c, b, a, c, b, a, c, b])
-//   }
+
+
 }
 
-
-// function play (time) {
-//   // get current step && bar index
-//   const s = step % totalSteps
-//   const b = bar % totalBars
-
-
-//   // play left hand
-//   const leftarp = leftHandArp[b]
-//   const leftnotes = leftarp.map(i => leftHandScale[i])
-//   const leftnote = leftnotes[s]
-//   piano.triggerAttackRelease(leftnote, '16n', time)
-
-//   // play right hand arpeggio
-//   const rightarp = rightHandArp[b]
-//   const rightnotes = rightarp.map(i => rightHandScale[i])
-//   const rightnote = rightnotes[s]
-//   piano.triggerAttackRelease(rightnote, '16n', time + 0.01)
-
-
-//   // update step/bar for next play call
-//   step++
-//   if (s === totalSteps - 1) bar++
-// }
 
 function play(time) {
   const s = step % totalSteps;
@@ -319,15 +296,36 @@ function play(time) {
   console.log(`Step: ${s}, Bar: ${b}`);
   console.log(`Left: ${leftnote}, Right: ${rightnote}`);
 
-  leftVolume = getRandomVolume(leftVolume);
-  let rightVolume = 0.5 * leftVolume;
+      if (s % 6 === 0) {
+        rightVolume = 0.9;
+        console.log(s);
+        console.log(rightVolume)  // accented note
+      } else {
+        rightVolume = 0.3;  
+      }
+    
+    let leftVolume = 0.3;
 
   if (leftnote !== "N/A") currentSampler.triggerAttackRelease(leftnote, '16n', time, leftVolume);
-  if (rightnote !== "N/A") currentSampler.triggerAttackRelease(rightnote, '16n', time + rightVolume);
+  if (rightnote !== "N/A") currentSampler.triggerAttackRelease(rightnote, '16n', time, rightVolume);
 
   step++;
-  if (s === totalSteps - 1) bar++;
+  if (s % notesUntilSwitch === 0) {
+        randomizeScale();
+        notesUntilSwitch = getRandomItem(noteGroupings);
+    }
+
+  if (s === totalSteps - 1) {
+    bar++;
+  };
 }
+
+function randomizeScale() {
+      const keysArr = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+      key = keysArr[Math.floor(Math.random() * keysArr.length)];
+      console.log("Randomized scale: " + key);
+      setPresets();
+    }
 
 function getRandomVolume(currentVolume) {
     // Define the range of possible volumes around the current one
