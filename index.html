@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Aeolian Harp</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+<script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://algorithmicmusic.online/js/create-spectrum.js"></script>
+<script src="https://algorithmicmusic.online/js/create-waveform.js"></script>
+
+
+
+ <!-- allura -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
+
+<style>
+body {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+
+h1 {
+   /* color: #936b0e; */
+   text-align: center;
+   padding-top: 50px;
+   padding-bottom: 15px;
+   font-family: "Allura", fantasy;
+   font-size: 140px;
+   font-weight: bold;
+   /* text-shadow: 3px 3px 5px black; */
+   width: 75%;
+   margin: 0 auto;
+
+  background: -webkit-linear-gradient(#91672a, #caaf74);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(3px 3px 5px #71520b);
+
+}
+
+</style>
+
+
+</head>
+
+
+<!-- <body style="background-image: url('978ad399938b3282d735f685ef7d2aa6.jpg')"> -->
+<body style="background-image: url('blossoming-cherry-trees-at-sunrise-free-photo.jpeg')">
+<h1>Aeolian Harp Generator</h1>
+
+<div>
+    <select id="mode">
+        <option value="ionian">Ionian</option>
+        <option value="dorian">Dorian</option>
+        <option value="phrygian">Phrygian</option>
+        <option value="lydian">Lydian</option>
+        <option value="mixolydian">Mixolydian</option>
+        <option value="aeolian">Aeolian</option>
+        <option value="locrian">Locrian</option>
+      </select>
+</div>
+
+<div>
+    <select id="key">
+        <option value="C">C</option>
+        <option value="C#">C# / Db</option>
+        <option value="D">D</option>
+        <option value="D#">D# / Eb</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="F#">F# / Gb</option>
+        <option value="G">G</option>
+        <option value="G#">G# / Ab</option>
+        <option value="A">A</option>
+        <option value="A#">A# / Bb</option>
+        <option value="B">B</option>
+      </select>
+</div>
+
+
+<div>
+    <select id="instrument">
+        <option value="piano">piano</option>
+        <option value="harp">harp</option>
+      </select>
+</div>
+
+<div>
+    <button id="toggleButton">play</button>
+</div>
+
+
+<script>
+const piano = new Tone.Sampler({
+    baseUrl: "https://tonejs.github.io/audio/salamander/",
+    urls: {
+      'A0': 'A0.mp3',
+      'C1': 'C1.mp3',
+      'D#1': 'Ds1.mp3',
+      'F#1': 'Fs1.mp3',
+      'A1': 'A1.mp3',
+      'C2': 'C2.mp3',
+      'D#2': 'Ds2.mp3',
+      'F#2': 'Fs2.mp3',
+      'A2': 'A2.mp3',
+      'C3': 'C3.mp3',
+      'D#3': 'Ds3.mp3',
+      'F#3': 'Fs3.mp3',
+      'A3': 'A3.mp3',
+      'C4': 'C4.mp3',
+      'D#4': 'Ds4.mp3',
+      'F#4': 'Fs4.mp3',
+      'A4': 'A4.mp3',
+      'C5': 'C5.mp3',
+      'D#5': 'Ds5.mp3',
+      'F#5': 'Fs5.mp3',
+      'A5': 'A5.mp3',
+      'C6': 'C6.mp3',
+      'D#6': 'Ds6.mp3',
+      'F#6': 'Fs6.mp3',
+      'A6': 'A6.mp3',
+      'C7': 'C7.mp3',
+      'D#7': 'Ds7.mp3',
+      'F#7': 'Fs7.mp3',
+      'A7': 'A7.mp3',
+      'C8': 'C8.mp3'
+    },
+    release: 1,
+    onload: () => console.log("Sampler loaded!")
+}).toDestination();
+
+
+const harp = new Tone.Sampler({
+  baseUrl: "./",  // relative to the current directory
+  urls: {
+    "A2": "samples_harp_A2.mp3",
+    "A4": "samples_harp_A4.mp3",
+    "A6": "samples_harp_A6.mp3",
+    "B1": "samples_harp_B1.mp3",
+    "B3": "samples_harp_B3.mp3",
+    "B5": "samples_harp_B5.mp3",
+    "B6": "samples_harp_B6.mp3",
+    "C3": "samples_harp_C3.mp3",
+    "C5": "samples_harp_C5.mp3",
+    "D2": "samples_harp_D2.mp3",
+    "D4": "samples_harp_D4.mp3",
+    "D6": "samples_harp_D6.mp3",
+    "D7": "samples_harp_D7.mp3",
+    "E1": "samples_harp_E1.mp3",
+    "E3": "samples_harp_E3.mp3",
+    "E5": "samples_harp_E5.mp3",
+    "F2": "samples_harp_F2.mp3",
+    "F4": "samples_harp_F4.mp3",
+    "F6": "samples_harp_F6.mp3",
+    "F7": "samples_harp_F7.mp3",
+    "G1": "samples_harp_G1.mp3",
+    "G3": "samples_harp_G3.mp3",
+    "G5": "samples_harp_G5.mp3",
+  },
+  release: 1,
+  onload: () => console.log("Harp sampler loaded!")
+}).toDestination();
+
+let currentSampler = piano;
+
+let step = 0
+let bar = 0
+let totalSteps = 6
+let totalBars = 1
+let leftVolume = 0.5
+
+const modes = {
+  ionian: [2, 2, 1, 2, 2, 2, 1], // major
+  dorian: [2, 1, 2, 2, 2, 1, 2],
+  phrygian: [1, 2, 2, 2, 1, 2, 2],
+  lydian: [2, 2, 2, 1, 2, 2, 1],
+  mixolydian: [2, 2, 1, 2, 2, 1, 2],
+  aeolian: [2, 1, 2, 2, 1, 2, 2], // minor
+  locrian: [1, 2, 2, 1, 2, 2, 2]
+}
+
+let rightHandArp = [
+  [11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9, 11, 7, 9, 4, 7, 9],
+//   [5, 3, 0, 5, 3, 0, 5, 3],
+//   [5, 3, 0, 5, 3, 0, 5, 3],
+//   [4, 2, 0, 4, 2, 0, 4, 2]
+]
+
+let leftHandArp = [[0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4, 0, 4, 7, 9, 7, 4]]
+
+    let mode = document.getElementById("mode").value;
+    let key = document.getElementById("key").value;
+    let octave = 4;
+  
+    document.getElementById("mode").addEventListener("change", function() {
+      mode = this.value;
+      console.log("Mode selected:", mode);
+      setPresets();
+    });
+  
+    document.getElementById("key").addEventListener("change", function() {
+      key = this.value;
+      console.log("Key selected:", key);
+      setPresets();
+    });
+
+    document.getElementById("instrument").addEventListener("change", function() {
+        const selected = this.value;
+        if (selected === "harp") {
+            currentSampler = harp;
+            console.log("Switched to harp");
+        } else {
+            currentSampler = piano;
+            console.log("Switched to piano");
+        }
+        });
+
+// functions...........
+    function toggle () {
+  if (Tone.Transport.state === 'started') {
+    Tone.Transport.stop()
+    toggleButton.textContent = "Start";
+  } else {
+    Tone.Transport.start()
+    toggleButton.textContent = "Stop";
+  }
+}
+
+function createScale(octave) {
+  const scale = [key + octave]
+  const notes = [
+    'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
+  ]
+
+  let note = key
+
+  for (const step of modes[mode]) {
+    const noteIndex = notes.indexOf(note)
+    const nextNoteIndex = (noteIndex + step) % notes.length
+    if (nextNoteIndex < noteIndex) octave += 1
+    note = notes[nextNoteIndex]
+    scale.push(note + octave)
+  }
+
+  return scale
+}
+
+
+
+function setPresets() {
+  // choose new key/scale && tempo
+  Tone.Transport.bpm.value = nn.randomInt(90, 140)
+  let oct = octave
+//   rightHandScale = createScale(oct) + createScale(oct + 1)
+//   leftHandScale = createScale(oct - 2) + createScale(oct - 1)
+rightHandScale = createScale(oct).concat(createScale(oct + 1));
+leftHandScale = createScale(oct - 2).concat(createScale(oct - 1));
+  // create new arpeggio && chord patterns
+//   rightHandArp = []
+//   leftHandArp = []
+//   for (let i = 0; i < 4; i++) {
+//     let a = nn.randomInt(0, 7)
+//     let b = nn.random() > 0.5 ? a + 2 : a + 3
+//     let c = nn.random() > 0.5 ? b + 2 : b + 3
+//     if (b > 7) b = b % 8
+//     if (c > 7) c = c % 8
+//     leftHandArp.push([c, b, a, c, b, a, c, b])
+//     rightHandArp.push([c, b, a, c, b, a, c, b])
+//   }
+}
+
+
+// function play (time) {
+//   // get current step && bar index
+//   const s = step % totalSteps
+//   const b = bar % totalBars
+
+
+//   // play left hand
+//   const leftarp = leftHandArp[b]
+//   const leftnotes = leftarp.map(i => leftHandScale[i])
+//   const leftnote = leftnotes[s]
+//   piano.triggerAttackRelease(leftnote, '16n', time)
+
+//   // play right hand arpeggio
+//   const rightarp = rightHandArp[b]
+//   const rightnotes = rightarp.map(i => rightHandScale[i])
+//   const rightnote = rightnotes[s]
+//   piano.triggerAttackRelease(rightnote, '16n', time + 0.01)
+
+
+//   // update step/bar for next play call
+//   step++
+//   if (s === totalSteps - 1) bar++
+// }
+
+function play(time) {
+  const s = step % totalSteps;
+  const b = bar % totalBars;
+
+  const leftarp = leftHandArp[b] || [];
+  const leftnotes = leftarp.map(i => leftHandScale[i] || "N/A");
+  const leftnote = leftnotes[s] || "N/A";
+  
+  const rightarp = rightHandArp[b] || [];
+  const rightnotes = rightarp.map(i => rightHandScale[i] || "N/A");
+  const rightnote = rightnotes[s] || "N/A";
+
+  console.log(`Step: ${s}, Bar: ${b}`);
+  console.log(`Left: ${leftnote}, Right: ${rightnote}`);
+
+  leftVolume = getRandomVolume(leftVolume);
+  let rightVolume = 0.5 * leftVolume;
+
+  if (leftnote !== "N/A") currentSampler.triggerAttackRelease(leftnote, '16n', time, leftVolume);
+  if (rightnote !== "N/A") currentSampler.triggerAttackRelease(rightnote, '16n', time + rightVolume);
+
+  step++;
+  if (s === totalSteps - 1) bar++;
+}
+
+function getRandomVolume(currentVolume) {
+    // Define the range of possible volumes around the current one
+    const volumeRange = 5; // How many steps around the current volume to consider
+    const minVolume = Math.max(0, currentVolume - volumeRange);
+    const maxVolume = Math.min(1, currentVolume + volumeRange);
+
+    // Create an array of possible volumes within this range
+    const possibleVolumes = [];
+    for (let i = minVolume * 100; i <= maxVolume * 100; i++) {
+        possibleVolumes.push(i / 100); // Convert to decimal values
+    }
+
+    // Function to give higher weight to volumes closer to the current one
+    const weightedVolume = possibleVolumes.map(volume => {
+        // Calculate a "weight" based on how far the volume is from the current one
+        const weight = 1 / (Math.abs(currentVolume - volume) + 0.0001); // Inverse weight
+        return { volume, weight };
+    });
+
+    // Normalize the weights to sum to 1
+    const totalWeight = weightedVolume.reduce((sum, item) => sum + item.weight, 0);
+    const normalizedWeights = weightedVolume.map(item => item.weight / totalWeight);
+
+    // Select a random volume based on the weighted probabilities
+    const rand = Math.random();
+    let cumulativeWeight = 0;
+    for (let i = 0; i < normalizedWeights.length; i++) {
+        cumulativeWeight += normalizedWeights[i];
+        if (rand < cumulativeWeight) {
+            return weightedVolume[i].volume;
+        }
+    }
+
+    return currentVolume; // Default to the current volume if something goes wrong
+}
+
+
+
+// timing events ...................................................
+new Tone.Loop(play, '16n').start()
+
+
+
+// UI ELEMENTS .....................................................
+
+const toggleButton = document.getElementById("toggleButton");
+
+toggleButton.addEventListener("mouseover", buttonHover);
+toggleButton.addEventListener("mouseout", buttonHover);
+toggleButton.addEventListener("click", toggle);
+
+function buttonHover() {
+  console.log("Hover event triggered");
+}
+
+function buttonHover (e) {
+  const button = e.target
+  const over = e.type === 'mouseover'
+  button.style.background = over ? 'black' : 'transparent'
+  button.style.color = over ? 'white' : 'black'
+}
+
+nn.on('load', setPresets)
+  </script>
+
+
+
+</body>
